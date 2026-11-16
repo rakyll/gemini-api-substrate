@@ -1,7 +1,7 @@
 'use strict';
 
 // ===========================================================================
-// Gemini API Managed Agents × Agent Substrate — live demo UI
+// Gemini API 🤝 Agent Substrate — live demo UI
 // All DOM is built with createElement/createElementNS + textContent (no
 // innerHTML) so model output and tool output can never inject markup.
 // ===========================================================================

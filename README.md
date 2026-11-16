@@ -1,4 +1,4 @@
-# Gemini API Managed Agents on Agent Substrate
+# Gemini API 🤝 Agent Substrate
 
 A live, visual demo of **Gemini API self-hosted environments** running on
 **[Agent Substrate](https://github.com/agent-substrate/substrate)** in a local
