@@ -61,7 +61,7 @@ h1 { font-size: 19px; margin: 0; font-weight: 600; letter-spacing: .2px; }
 /* ---------- layout ---------- */
 .layout {
   flex: 1; min-height: 0;
-  display: grid; grid-template-columns: minmax(380px, 34%) 1fr; gap: 14px; padding: 14px;
+  display: grid; grid-template-columns: minmax(440px, 40%) 1fr; gap: 14px; padding: 14px;
 }
 .panel {
   background: var(--panel);
@@ -165,7 +165,7 @@ legend { color: var(--muted); font-size: 12px; padding: 0 6px; }
 .tool pre { margin: 0; padding: 8px 10px; font-size: 12.5px; white-space: pre-wrap; word-break: break-word; max-height: 220px; overflow-y: auto; }
 .tool .cmd { color: #c9d4ff; }
 .tool .cmd::before { content: "$ "; color: var(--green); }
-.tool .out { color: #b8c0cc; border-top: 1px dashed var(--line); }
+.tool .out { color: #b8c0cc; }
 .tool .stderr { color: #f3a0a0; }
 
 .thinking { align-self: flex-start; color: var(--muted); font-size: 12px; display: flex; gap: 8px; align-items: center; }
@@ -173,7 +173,7 @@ legend { color: var(--muted); font-size: 12px; padding: 0 6px; }
 .thinking .bars i { width: 4px; height: 12px; background: var(--purple); border-radius: 2px; animation: bars 1s infinite ease-in-out; }
 .thinking .bars i:nth-child(2) { animation-delay: .15s; background: var(--blue); }
 .thinking .bars i:nth-child(3) { animation-delay: .3s; background: var(--pink); }
-.turn-meta { align-self: center; font: 11px var(--mono); color: var(--muted); padding: 2px 10px; border: 1px dashed var(--line); border-radius: 999px; }
+.turn-meta { align-self: center; font: 11px var(--mono); color: var(--muted); padding: 2px 10px; border-radius: 999px; }
 .error { align-self: stretch; color: var(--red); border: 1px solid rgba(248,113,113,.4); background: rgba(248,113,113,.06); border-radius: 10px; padding: 8px 12px; }
 
 /* ---------- composer ---------- */
@@ -205,7 +205,7 @@ svg .node.hot rect.box { stroke: var(--purple); }
 svg .node text.title { fill: var(--text); font: 600 14px var(--sans); }
 svg .node text.sub { fill: var(--muted); font: 11px var(--sans); }
 svg .node text.icon { font-size: 18px; }
-svg .cluster { fill: rgba(76,141,255,.025); stroke: #2a3550; stroke-dasharray: 6 5; }
+svg .cluster { filter: drop-shadow(0 6px 18px rgba(0,0,0,.35)); }
 svg .cluster-label { fill: #6f86b8; font: 600 11px var(--mono); letter-spacing: .5px; }
 svg .pool { fill: rgba(52,211,153,.025); stroke: #24443a; }
 svg .pool-label { fill: #5fae8f; font: 600 11px var(--mono); }
@@ -214,8 +214,8 @@ svg .snap-label { fill: #5fb6d8; font: 600 11px var(--mono); }
 svg .edge { fill: none; stroke: #2e3648; stroke-width: 2; transition: stroke .3s; }
 svg .edge.hot { stroke: #6a5bd6; }
 svg .edge-label { fill: #6c7588; font: 10.5px var(--mono); }
-svg .pod rect.podbox { fill: #121620; stroke: #2a3242; stroke-dasharray: 4 3; }
-svg .pod.ready rect.podbox { stroke: #2f4a40; stroke-dasharray: none; }
+svg .pod rect.podbox { fill: #121620; }
+
 svg .pod text.podname { fill: var(--muted); font: 9.5px var(--mono); }
 svg .pod text.warm { fill: #4c5a6e; font: 11px var(--sans); }
 svg .actor rect.chipbox { stroke-width: 1.5; }
@@ -297,3 +297,19 @@ svg .pool, svg .snap { stroke: none; }
 svg .pod rect.podbox, svg .pod.ready rect.podbox { stroke: none; fill: #11151e; }
 .topbar { border-bottom: none; }
 .ghost, .primary, .scenario { white-space: nowrap; }
+.msg-user { max-width: 90%; }
+.msg-model { max-width: 100%; }
+
+/* ---------- soft elevation (shadows) ----------
+   Two layers: a tight contact shadow plus a wider ambient one. */
+:root {
+  --shadow-1: 0 1px 2px rgba(0,0,0,.35), 0 2px 6px rgba(0,0,0,.25);
+  --shadow-2: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+}
+.panel { box-shadow: var(--shadow-2); }
+.session-head, .new-sandbox, .tool, .msg-user, .msg-model,
+.scenario, .ghost, .chip, .tab.active, textarea { box-shadow: var(--shadow-1); }
+.primary { box-shadow: 0 2px 8px rgba(0,0,0,.35); }
+textarea:focus { box-shadow: var(--shadow-1); }
+svg .node rect.box, svg .pod rect.podbox, svg .actor rect.chipbox { filter: drop-shadow(0 3px 6px rgba(0,0,0,.45)); }
+svg .pool, svg .snap { filter: drop-shadow(0 4px 12px rgba(0,0,0,.35)); }

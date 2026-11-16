@@ -166,7 +166,12 @@ const GEOM = {
 function buildArch() {
   const root = svg('svg', { viewBox: '0 0 1000 760', preserveAspectRatio: 'xMidYMid meet', role: 'img', 'aria-label': 'Live architecture diagram' });
 
-  root.append(svg('rect', { class: 'cluster', x: 14, y: 128, width: 972, height: 626, rx: 8 }));
+  const grad = (id, x2, y2, stops) => svg('linearGradient', { id, x1: 0, y1: 0, x2, y2 },
+    ...stops.map(([offset, color, opacity]) => svg('stop', { offset, 'stop-color': color, 'stop-opacity': opacity })));
+  root.append(svg('defs', {},
+    grad('cluster-stroke', 1, 1, [[0, '#4c8dff', 0.7], [0.5, '#9b72f2', 0.55], [1, '#e86fa6', 0.45]]),
+    grad('cluster-fill', 0, 1, [[0, '#4c8dff', 0.06], [1, '#9b72f2', 0.02]])));
+  root.append(svg('rect', { class: 'cluster', x: 14, y: 128, width: 972, height: 626, rx: 12, fill: 'url(#cluster-fill)', stroke: 'url(#cluster-stroke)', 'stroke-width': 1.5 }));
   A.clusterLabel = svg('text', { class: 'cluster-label', x: 30, y: 748, text: 'CLUSTER · AGENT SUBSTRATE v1' });
   root.append(A.clusterLabel);
 
