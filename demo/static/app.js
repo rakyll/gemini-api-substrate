@@ -177,10 +177,9 @@ function buildArch() {
     grad('gemini-stroke', 1, 0, [[0, '#1a73e8', 1], [0.55, '#7b4fe0', 1], [1, '#d6457e', 1]]),
     grad('gemini-fill-light', 1, 1, [[0, '#eaf1ff', 1], [1, '#f3ecff', 1]])));
   root.append(svg('rect', { class: 'cluster', x: 14, y: 128, width: 972, height: 626, rx: 12, fill: 'url(#cluster-fill)', stroke: 'url(#cluster-stroke)', 'stroke-width': 1.5 }));
-  // Yolo the octopus (Agent Substrate mascot) badge sitting on the cluster edge.
-  root.append(svg('rect', { class: 'cluster-tag', x: 66, y: 119, width: 124, height: 18, rx: 9 }));
-  root.append(svg('text', { class: 'cluster-tag-text', x: 128, y: 132, 'text-anchor': 'middle', text: 'Agent Substrate' }));
-  root.append(svg('image', { class: 'yolo', href: 'icons/yolo.svg', x: 20, y: 104, width: 48, height: 48 }));
+  // "Agent Substrate" label pill sitting on the cluster border.
+  root.append(svg('rect', { class: 'cluster-tag', x: 30, y: 116, width: 164, height: 24, rx: 12 }));
+  root.append(svg('text', { class: 'cluster-tag-text', x: 112, y: 134, 'text-anchor': 'middle', text: 'Agent Substrate' }));
 
   const p = GEOM.pool, sh = GEOM.shelf;
   root.append(svg('rect', { class: 'pool', x: p.x, y: p.y, width: p.w, height: p.h, rx: 6 }));
@@ -259,11 +258,19 @@ function pulse(edgeId, { reverse = false, color = C.ctrl, label = '', dur = 950,
     const path = A.edges[edgeId];
     if (!path || document.hidden) return;
     const len = path.getTotalLength();
-    const dot = svg('circle', { r: 6, fill: color });
-    const g = svg('g', { class: 'packet' }, dot);
+    const sz = 28;
+    const icon = svg('image', { class: 'packet-yolo', href: 'icons/yolo.svg', x: -sz / 2, y: -sz / 2, width: sz, height: sz });
+    const g = svg('g', { class: 'packet' }, icon);
     g.style.color = color;
-    let txt;
-    if (label) { txt = svg('text', { class: 'packet-label', fill: color, text: label }); g.append(txt); }
+    const leftLabel = edgeId === 'pool-gemini';
+    if (label) g.append(svg('text', {
+      class: 'packet-label',
+      x: leftLabel ? -(sz / 2 + 4) : sz / 2 + 4,
+      y: -6,
+      'text-anchor': leftLabel ? 'end' : 'start',
+      fill: color,
+      text: label,
+    }));
     A.layers.packets.append(g);
     path.classList.add('hot');
     path._n = (path._n || 0) + 1;
@@ -272,8 +279,8 @@ function pulse(edgeId, { reverse = false, color = C.ctrl, label = '', dur = 950,
       const t = Math.min(1, (now - t0) / dur);
       const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
       const pt = path.getPointAtLength((reverse ? 1 - e : e) * len);
-      dot.setAttribute('cx', pt.x); dot.setAttribute('cy', pt.y);
-      if (txt) { txt.setAttribute('x', pt.x + 9); txt.setAttribute('y', pt.y - 9); }
+      const bob = Math.sin(t * Math.PI * 3) * 1.5;
+      g.setAttribute('transform', `translate(${pt.x.toFixed(1)},${(pt.y + bob).toFixed(1)})`);
       if (t < 1) requestAnimationFrame(step);
       else {
         g.remove();

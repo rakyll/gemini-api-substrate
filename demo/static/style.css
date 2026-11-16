@@ -224,6 +224,7 @@ svg .actor text.astate { font: 10.5px var(--mono); }
 
 svg .actor.flash rect.chipbox { stroke: #fff; }
 
+svg .packet-yolo { filter: drop-shadow(0 2px 4px rgba(16,24,40,.22)); }
 svg .packet-label { font: 600 10.5px var(--mono); }
 
 /* ---------- timeline ---------- */
@@ -318,7 +319,7 @@ svg .pool { fill: #13201c; }
 svg .pool, svg .snap { filter: drop-shadow(0 4px 14px rgba(0,0,0,.45)); }
 svg .actor text.adetail { fill: #9aa3b5; font: 10.5px var(--sans); }
 svg .cluster-tag { fill: var(--bg); }
-svg .cluster-tag-text { fill: #b9a6f5; font: 600 11.5px var(--sans); letter-spacing: .3px; }
+svg .cluster-tag-text { fill: #b9a6f5; font: 700 16px var(--sans); letter-spacing: .3px; }
 svg .yolo { filter: drop-shadow(0 3px 8px rgba(0,0,0,.5)); }
 
 /* ---------- Gemini API node: highlighted ---------- */
