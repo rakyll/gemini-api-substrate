@@ -1,0 +1,58 @@
+containers:
+    - args:
+        - actor-daemon
+        - --port=80
+        - --runtime-bin=gemini-api
+        - --root-dir=/
+        - --workdir=/workspace
+        - --server-url=https://generativelanguage.googleapis.com
+      command:
+        - ate-gemini
+      env:
+        - name: SSL_CERT_FILE
+          value: /run/ate/egress-trust-bundle/trust-bundle.pem
+        - name: REQUESTS_CA_BUNDLE
+          value: /run/ate/egress-trust-bundle/trust-bundle.pem
+        - name: NODE_EXTRA_CA_CERTS
+          value: /run/ate/egress-trust-bundle/trust-bundle.pem
+        - name: GIT_SSL_CAINFO
+          value: /run/ate/egress-trust-bundle/trust-bundle.pem
+      image: localhost:5001/ate-gemini@sha256:aaac5d9bd94f62dcb505e67246262fefa87bdffc4c976373fc5f97d904d7f4b6
+      name: worker
+      securityContext:
+        capabilities:
+            drop:
+                - ALL
+      volumeMounts:
+        - mountPath: /workspace
+          name: workspace
+        - mountPath: /run/ate
+          name: system-info
+      wakeupProbe:
+        httpGet:
+            path: /healthz
+            port: 80
+        timeoutSeconds: 30
+metadata:
+    atespace: gemini-self-hosted
+    name: gemini-env-actor
+resources:
+    limits:
+        cpuMillicores: "1000"
+        memoryBytes: "536870912"
+snapshotConfig:
+    preferredFidelity: SNAPSHOT_FIDELITY_MEMORY
+volumes:
+    - durableDir: {}
+      name: workspace
+    - name: system-info
+      systemInfo:
+        dataSources:
+            - trustBundle:
+                names:
+                    - egress-mitm.ate.dev
+                    - system-roots.ate.dev
+                path: egress-trust-bundle/trust-bundle.pem
+workerSelector:
+    matchLabels:
+        workload: gemini-env-actor

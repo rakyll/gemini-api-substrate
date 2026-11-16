@@ -1,0 +1,4 @@
+upstream/
+deploy/manifests.yaml
+.worker-image
+demo/substrate-demo
