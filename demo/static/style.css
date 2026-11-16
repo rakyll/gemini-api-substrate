@@ -395,7 +395,7 @@ svg #node-gemini.hot rect.box {
 
 /* ---------- light palette polish ---------- */
 body { background: var(--bg); }
-.msg-user { background: #e8f0fe; color: #17305e; }
+.msg-user { background: #e8f0fe; color: #000; }
 .msg-model { background: var(--panel2); }
 .session-head { background: var(--panel2); }
 .scenario { background: var(--panel2); color: #2b3242; }
