@@ -313,3 +313,10 @@ svg .pod rect.podbox, svg .pod.ready rect.podbox { stroke: none; fill: #11151e; 
 textarea:focus { box-shadow: var(--shadow-1); }
 svg .node rect.box, svg .pod rect.podbox, svg .actor rect.chipbox { filter: drop-shadow(0 3px 6px rgba(0,0,0,.45)); }
 svg .pool, svg .snap { filter: drop-shadow(0 4px 12px rgba(0,0,0,.35)); }
+svg .snap { fill: #142029; }
+svg .pool { fill: #13201c; }
+svg .pool, svg .snap { filter: drop-shadow(0 4px 14px rgba(0,0,0,.45)); }
+svg .actor text.adetail { fill: #9aa3b5; font: 10.5px var(--sans); }
+svg .cluster-tag { fill: var(--panel); }
+svg .cluster-tag-text { fill: #b9a6f5; font: 600 11.5px var(--sans); letter-spacing: .3px; }
+svg .yolo { filter: drop-shadow(0 3px 8px rgba(0,0,0,.5)); }

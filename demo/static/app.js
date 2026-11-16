@@ -160,7 +160,7 @@ const A = { edges: {}, nodes: {}, layers: {}, actorEls: new Map(), podKey: '', p
 const GEOM = {
   pool: { x: 565, y: 166, w: 405, h: 562 },
   shelf: { x: 40, y: 398, w: 485, h: 330 },
-  chip: { w: 145, h: 54 },
+  chip: { w: 145, h: 76 },
 };
 
 function buildArch() {
@@ -172,8 +172,10 @@ function buildArch() {
     grad('cluster-stroke', 1, 1, [[0, '#4c8dff', 0.7], [0.5, '#9b72f2', 0.55], [1, '#e86fa6', 0.45]]),
     grad('cluster-fill', 0, 1, [[0, '#4c8dff', 0.06], [1, '#9b72f2', 0.02]])));
   root.append(svg('rect', { class: 'cluster', x: 14, y: 128, width: 972, height: 626, rx: 12, fill: 'url(#cluster-fill)', stroke: 'url(#cluster-stroke)', 'stroke-width': 1.5 }));
-  A.clusterLabel = svg('text', { class: 'cluster-label', x: 30, y: 748, text: 'CLUSTER · AGENT SUBSTRATE v1' });
-  root.append(A.clusterLabel);
+  // Yolo the octopus (Agent Substrate mascot) badge sitting on the cluster edge.
+  root.append(svg('rect', { class: 'cluster-tag', x: 66, y: 119, width: 124, height: 18, rx: 9 }));
+  root.append(svg('text', { class: 'cluster-tag-text', x: 128, y: 132, 'text-anchor': 'middle', text: 'Agent Substrate' }));
+  root.append(svg('image', { class: 'yolo', href: 'icons/yolo.svg', x: 20, y: 104, width: 48, height: 48 }));
 
   const p = GEOM.pool, sh = GEOM.shelf;
   root.append(svg('rect', { class: 'pool', x: p.x, y: p.y, width: p.w, height: p.h, rx: 6 }));
@@ -304,14 +306,16 @@ function idleRemaining(s) {
   return Math.round(IDLE_TIMEOUT_S - (Date.now() - s.lastActivity) / 1000);
 }
 
+// Returns [state, detail] for the two status lines on an environment box.
 function stateText(a, s) {
   if (a.state === 'RUNNING') {
-    if (s && s.busy) return 'RUNNING · working';
+    if (s && s.busy) return ['RUNNING', 'working on a turn'];
     const r = idleRemaining(s);
-    if (r !== null) return r > 0 ? `RUNNING · idle, suspends ~${r}s` : 'RUNNING · suspending soon';
-    return 'RUNNING';
+    if (r !== null) return ['RUNNING', r > 0 ? `idle · suspends in ~${r}s` : 'idle · suspending soon'];
+    return ['RUNNING', 'active'];
   }
-  return a.state;
+  if (a.state === 'SUSPENDED') return ['SUSPENDED', 'snapshot saved · frozen'];
+  return [a.state, 'transitioning…'];
 }
 
 function renderActors() {
@@ -328,9 +332,9 @@ function renderActors() {
       y = slot.y + Math.max(26, (slot.h - chip.h) / 2 + 6);
     } else {
       const i = suspended.indexOf(a);
-      const col = i % 3, row = Math.floor(i / 3) % 4;
+      const col = i % 3, row = Math.floor(i / 3) % 3;
       x = shelf.x + 14 + col * (chip.w + 8);
-      y = shelf.y + 32 + row * (chip.h + 10) + Math.floor(i / 12) * 4;
+      y = shelf.y + 32 + row * (chip.h + 10) + Math.floor(i / 9) * 4;
     }
     const { name, color, session } = actorLabel(a);
     let g = A.actorEls.get(a.name);
@@ -339,10 +343,12 @@ function renderActors() {
       g._rect = svg('rect', { class: 'chipbox', width: chip.w, height: chip.h, rx: 6 });
       g._swatch = svg('rect', { x: 10, y: 12, width: 10, height: 10, rx: 3 });
       g._name = svg('text', { class: 'aname', x: 27, y: 22 });
-      g._state = svg('text', { class: 'astate', x: 10, y: 42 });
-      g.append(g._rect, g._swatch, g._name, g._state);
-      g.style.transform = `translate(${x}px, ${y - 30}px)`;
-      g.style.opacity = '0';
+      g._state = svg('text', { class: 'astate', x: 10, y: 44 });
+      g._detail = svg('text', { class: 'adetail', x: 10, y: 62 });
+      g.append(g._rect, g._swatch, g._name, g._state, g._detail);
+      const animateIn = !!A.ready; // only animate actors created while watching
+      g.style.transform = `translate(${x}px, ${animateIn ? y - 30 : y}px)`;
+      g.style.opacity = animateIn ? '0' : '1';
       A.layers.actors.append(g);
       A.actorEls.set(a.name, g);
       g.getBoundingClientRect(); // force layout so the entrance animates
@@ -356,7 +362,9 @@ function renderActors() {
     g._swatch.setAttribute('fill', color);
     g._name.textContent = name;
     g._state.setAttribute('fill', stroke);
-    g._state.textContent = stateText(a, session);
+    const [stateLine, detailLine] = stateText(a, session);
+    g._state.textContent = stateLine;
+    g._detail.textContent = detailLine;
     g.style.transform = `translate(${x}px, ${y}px)`;
     g.style.opacity = '1';
   }
@@ -365,6 +373,7 @@ function renderActors() {
   }
   const occupied = new Set(S.cluster.actors.filter((a) => a.state !== 'SUSPENDED' && a.workerPod).map((a) => a.workerPod));
   for (const [name, slot] of A.podSlots) if (slot.warmEl) slot.warmEl.style.display = occupied.has(name) ? 'none' : '';
+  if (S._clusterSeen) A.ready = true;
 }
 
 function flashActor(session) {
@@ -414,7 +423,6 @@ function renderCluster() {
   const v = S.cluster;
   if (v.context) {
     $('chip-context').replaceChildren('cluster ', el('b', { text: v.context }), ' · atespace ', el('b', { text: S.config.atespace || '…' }));
-    A.clusterLabel.textContent = `CLUSTER · ${v.context} · AGENT SUBSTRATE v1 · atespace ${S.config.atespace || ''}`;
   }
   setChip('chip-controller', v.controller && v.controller.ready, 'controller', v.controller ? (v.controller.ready ? 'ready' : v.controller.phase) : 'missing');
   const ready = v.workers.filter((w) => w.ready).length;
