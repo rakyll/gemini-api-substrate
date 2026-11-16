@@ -17,10 +17,10 @@
       </div>
     </div>
     <div class="status" id="status">
-      <span class="chip" id="chip-context">kind · …</span>
-      <span class="chip" id="chip-controller"><i class="dot"></i>controller</span>
-      <span class="chip" id="chip-pool"><i class="dot"></i>pool</span>
-      <span class="chip" id="chip-actors">actors</span>
+      <span class="chip" id="chip-context">cluster …</span>
+      <span class="chip" id="chip-controller" hidden><i class="dot"></i>controller</span>
+      <span class="chip" id="chip-pool" hidden><i class="dot"></i>pool</span>
+      <span class="chip" id="chip-actors" hidden>actors</span>
       <span class="chip live" id="chip-live"><i class="dot"></i>live</span>
       <button class="ghost small" id="btn-reset-ui" type="button" title="Forget local sessions (does not delete actors)">reset</button>
     </div>
@@ -79,18 +79,17 @@
         <div class="panel-title">
           <h2>Live View</h2>
           <div class="legend">
-            <span><i class="lg lg-run"></i>running</span>
-            <span><i class="lg lg-susp"></i>suspended (snapshot)</span>
-            <span><i class="lg lg-trans"></i>transitioning</span>
             <button class="ghost small danger" id="btn-delete-all" type="button" title="Delete every actor in the demo atespace">🗑 Delete all actors</button>
           </div>
         </div>
         <div id="arch" class="arch-canvas"></div>
       </div>
-      <div class="panel timeline">
-        <div class="panel-title">
+      <div class="panel timeline collapsed" id="timeline-panel">
+        <div class="panel-title tl-toggle" id="tl-toggle" role="button" tabindex="0" aria-expanded="false" aria-controls="timeline">
           <h2>Event timeline</h2>
+          <span class="tl-latest" id="tl-latest"></span>
           <button class="ghost small" id="btn-clear-tl" type="button">clear</button>
+          <span class="tl-chevron" aria-hidden="true">▴</span>
         </div>
         <ol id="timeline"></ol>
       </div>

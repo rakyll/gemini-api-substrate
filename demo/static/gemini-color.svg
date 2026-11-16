@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <defs>
+    <clipPath id="spark">
+      <path d="M12 24A14.3 14.3 0 0 0 0 12 14.3 14.3 0 0 0 12 0a14.3 14.3 0 0 0 12 12 14.3 14.3 0 0 0-12 12"/>
+    </clipPath>
+    <filter id="blend" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3"/>
+    </filter>
+  </defs>
+  <g clip-path="url(#spark)">
+    <rect width="24" height="24" fill="#4285F4"/>
+    <g filter="url(#blend)">
+      <circle cx="12" cy="1" r="6" fill="#EA4335"/>
+      <circle cx="23" cy="12" r="6" fill="#FBBC04"/>
+      <circle cx="12" cy="23" r="6" fill="#34A853"/>
+      <circle cx="1" cy="12" r="6" fill="#4285F4"/>
+      <circle cx="12" cy="12" r="4" fill="#4285F4"/>
+    </g>
+  </g>
+</svg>

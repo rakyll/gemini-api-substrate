@@ -142,6 +142,14 @@ function timeline(tag, msg) {
   const t = new Date().toLocaleTimeString([], { hour12: false });
   ol.prepend(el('li', {}, el('span', { class: 't', text: t }), el('span', { class: `tag ${tag}`, text: tag.toUpperCase() }), el('span', { class: 'msg', text: msg })));
   while (ol.children.length > 300) ol.lastChild.remove();
+  $('tl-latest').textContent = `${t}  ${msg}`;
+}
+
+function toggleTimeline(open) {
+  const panel = $('timeline-panel');
+  const expand = open === undefined ? panel.classList.contains('collapsed') : open;
+  panel.classList.toggle('collapsed', !expand);
+  $('tl-toggle').setAttribute('aria-expanded', String(expand));
 }
 
 // ---------------------------------------------------------------------------
@@ -150,22 +158,22 @@ function timeline(tag, msg) {
 const A = { edges: {}, nodes: {}, layers: {}, actorEls: new Map(), podKey: '', podSlots: new Map() };
 
 const GEOM = {
-  pool: { x: 565, y: 166, w: 405, h: 392 },
-  shelf: { x: 40, y: 398, w: 485, h: 160 },
+  pool: { x: 565, y: 166, w: 405, h: 562 },
+  shelf: { x: 40, y: 398, w: 485, h: 330 },
   chip: { w: 145, h: 54 },
 };
 
 function buildArch() {
-  const root = svg('svg', { viewBox: '0 0 1000 590', preserveAspectRatio: 'xMidYMid meet', role: 'img', 'aria-label': 'Live architecture diagram' });
+  const root = svg('svg', { viewBox: '0 0 1000 760', preserveAspectRatio: 'xMidYMid meet', role: 'img', 'aria-label': 'Live architecture diagram' });
 
-  root.append(svg('rect', { class: 'cluster', x: 14, y: 128, width: 972, height: 456, rx: 16 }));
-  A.clusterLabel = svg('text', { class: 'cluster-label', x: 30, y: 578, text: 'CLUSTER · AGENT SUBSTRATE v1' });
+  root.append(svg('rect', { class: 'cluster', x: 14, y: 128, width: 972, height: 626, rx: 8 }));
+  A.clusterLabel = svg('text', { class: 'cluster-label', x: 30, y: 748, text: 'CLUSTER · AGENT SUBSTRATE v1' });
   root.append(A.clusterLabel);
 
   const p = GEOM.pool, sh = GEOM.shelf;
-  root.append(svg('rect', { class: 'pool', x: p.x, y: p.y, width: p.w, height: p.h, rx: 12 }));
+  root.append(svg('rect', { class: 'pool', x: p.x, y: p.y, width: p.w, height: p.h, rx: 6 }));
   root.append(svg('text', { class: 'pool-label', x: p.x + 14, y: p.y + 20, text: 'WORKERPOOL' }));
-  root.append(svg('rect', { class: 'snap', x: sh.x, y: sh.y, width: sh.w, height: sh.h, rx: 12 }));
+  root.append(svg('rect', { class: 'snap', x: sh.x, y: sh.y, width: sh.w, height: sh.h, rx: 6 }));
   root.append(svg('text', { class: 'snap-label', x: sh.x + 14, y: sh.y + 20, text: '❄ SNAPSHOTS' }));
 
   const edges = svg('g');
@@ -176,29 +184,30 @@ function buildArch() {
     ['ctrl-router', 'M300,214 C 390,214 435,240 435,290', 'StartWork · mTLS', 395, 230, 'start'],
     ['router-pool', 'M525,321 L565,321', '', 0, 0, 'start'],
     ['pool-gemini', 'M920,166 L920,92', 'bidi stream (lease token)', 912, 134, 'end'],
-    ['pool-snap', 'M565,505 L525,505', '', 0, 0, 'start'],
+    ['pool-snap', 'M565,563 L525,563', '', 0, 0, 'start'],
   ];
-  for (const [id, d, label, lx, ly, anchor] of edgeDefs) {
+  for (const [id, d] of edgeDefs) {
     const path = svg('path', { class: 'edge', d, id: `edge-${id}` });
     A.edges[id] = path;
     edges.append(path);
-    if (label) edges.append(svg('text', { class: 'edge-label', x: lx, y: ly, 'text-anchor': anchor, text: label }));
   }
   root.append(edges);
 
   const nodeDefs = [
-    ['app', 30, 24, 230, 68, '💻', 'Application', 'holds API key · runs nothing'],
-    ['gemini', 740, 24, 230, 68, '✦', 'Gemini API', 'Interactions · Antigravity agent'],
-    ['ctrl', 40, 166, 260, 70, '🛰', 'gemini-substrate-controller', 'environments poll · idle sweeper'],
-    ['api', 40, 290, 260, 62, '⚙', 'ate-api-server', 'Create · Resume · Suspend actor'],
-    ['router', 345, 290, 180, 62, '🔀', 'atenet-router', 'mTLS → actor :80'],
+    ['app', 30, 24, 230, 68, '💻', 'Application'],
+    ['gemini', 740, 24, 230, 68, 'logo:gemini-color.svg', 'Gemini API'],
+    ['ctrl', 40, 166, 260, 70, '🛰', 'gemini-substrate-controller'],
+    ['api', 40, 290, 260, 62, '⚙', 'ate-api-server'],
+    ['router', 345, 290, 180, 62, '🔀', 'atenet-router'],
   ];
-  for (const [id, x, y, w, h, icon, title, sub] of nodeDefs) {
+  for (const [id, x, y, w, h, icon, title] of nodeDefs) {
+    const iconEl = icon.startsWith('logo:')
+      ? svg('image', { href: icon.slice(5), x: x + 13, y: y + h / 2 - 11, width: 22, height: 22 })
+      : svg('text', { class: 'icon', x: x + 14, y: y + h / 2 + 6, text: icon });
     const g = svg('g', { class: 'node', id: `node-${id}` },
-      svg('rect', { class: 'box', x, y, width: w, height: h, rx: 12 }),
-      svg('text', { class: 'icon', x: x + 14, y: y + h / 2 + 6, text: icon }),
-      svg('text', { class: 'title', x: x + 44, y: y + h / 2 - 3, text: title }),
-      svg('text', { class: 'sub', x: x + 44, y: y + h / 2 + 15, text: sub }));
+      svg('rect', { class: 'box', x, y, width: w, height: h, rx: 6 }),
+      iconEl,
+      svg('text', { class: 'title', x: x + 44, y: y + h / 2 + 5, text: title }));
     A.nodes[id] = g;
     root.append(g);
   }
@@ -254,7 +263,7 @@ function podSlots(workers) {
   const rows = Math.ceil(n / 2);
   const gap = 12, top = p.y + 32;
   const slotW = (p.w - 28 - 11) / 2;
-  const slotH = Math.min(170, (p.h - 44 - (rows - 1) * gap) / rows);
+  const slotH = Math.min(260, (p.h - 44 - (rows - 1) * gap) / rows);
   const slots = new Map();
   workers.slice(0, 8).forEach((w, i) => {
     const col = i % 2, row = Math.floor(i / 2);
@@ -272,11 +281,9 @@ function renderPods() {
   const layer = A.layers.pods;
   layer.replaceChildren();
   for (const [name, s] of A.podSlots) {
-    s.warmEl = svg('text', { class: 'warm', x: s.x + s.w / 2, y: s.y + s.h - 14, 'text-anchor': 'middle', text: s.pod.ready ? 'warm · waiting for an actor' : 'starting…' });
     layer.append(svg('g', { class: `pod ${s.pod.ready ? 'ready' : ''}` },
-      svg('rect', { class: 'podbox', x: s.x, y: s.y, width: s.w, height: s.h, rx: 10 }),
-      svg('text', { class: 'podname', x: s.x + 10, y: s.y + 17, text: name }),
-      s.warmEl));
+      svg('rect', { class: 'podbox', x: s.x, y: s.y, width: s.w, height: s.h, rx: 6 }),
+      svg('text', { class: 'podname', x: s.x + 10, y: s.y + 17, text: name })));
   }
 }
 
@@ -314,15 +321,15 @@ function renderActors() {
       y = slot.y + Math.max(26, (slot.h - chip.h) / 2 + 6);
     } else {
       const i = suspended.indexOf(a);
-      const col = i % 3, row = Math.floor(i / 3) % 2;
+      const col = i % 3, row = Math.floor(i / 3) % 4;
       x = shelf.x + 14 + col * (chip.w + 8);
-      y = shelf.y + 32 + row * (chip.h + 10) + Math.floor(i / 6) * 4;
+      y = shelf.y + 32 + row * (chip.h + 10) + Math.floor(i / 12) * 4;
     }
     const { name, color, session } = actorLabel(a);
     let g = A.actorEls.get(a.name);
     if (!g) {
       g = svg('g', { class: 'actor' });
-      g._rect = svg('rect', { class: 'chipbox', width: chip.w, height: chip.h, rx: 10 });
+      g._rect = svg('rect', { class: 'chipbox', width: chip.w, height: chip.h, rx: 6 });
       g._swatch = svg('rect', { x: 10, y: 12, width: 10, height: 10, rx: 3 });
       g._name = svg('text', { class: 'aname', x: 27, y: 22 });
       g._state = svg('text', { class: 'astate', x: 10, y: 42 });
@@ -399,7 +406,7 @@ function onCluster(view) {
 function renderCluster() {
   const v = S.cluster;
   if (v.context) {
-    $('chip-context').textContent = `kind · ${v.context}`;
+    $('chip-context').replaceChildren('cluster ', el('b', { text: v.context }), ' · atespace ', el('b', { text: S.config.atespace || '…' }));
     A.clusterLabel.textContent = `CLUSTER · ${v.context} · AGENT SUBSTRATE v1 · atespace ${S.config.atespace || ''}`;
   }
   setChip('chip-controller', v.controller && v.controller.ready, 'controller', v.controller ? (v.controller.ready ? 'ready' : v.controller.phase) : 'missing');
@@ -868,7 +875,11 @@ function init() {
   });
   $('btn-suspend').addEventListener('click', suspendActive);
   $('btn-delete-all').addEventListener('click', deleteAllActors);
-  $('btn-clear-tl').addEventListener('click', () => $('timeline').replaceChildren());
+  $('btn-clear-tl').addEventListener('click', (e) => { e.stopPropagation(); $('timeline').replaceChildren(); $('tl-latest').textContent = ''; });
+  $('tl-toggle').addEventListener('click', () => toggleTimeline());
+  $('tl-toggle').addEventListener('keydown', (e) => {
+    if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); toggleTimeline(); }
+  });
   $('btn-reset-ui').addEventListener('click', () => {
     if (S.sessions.some((s) => s.busy)) return;
     localStorage.removeItem(STORAGE_KEY);
