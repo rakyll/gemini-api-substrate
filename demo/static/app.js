@@ -374,8 +374,9 @@ function renderActors() {
     }
     const stateCls = a.state === 'RUNNING' ? 'RUNNING' : a.state === 'SUSPENDED' ? 'SUSPENDED' : 'trans';
     g.setAttribute('class', `actor ${stateCls}${g.classList.contains('flash') ? ' flash' : ''}`);
-    const stroke = stateCls === 'RUNNING' ? cssVar('--green', '#34d399') : stateCls === 'SUSPENDED' ? cssVar('--ice', '#67d4ff') : cssVar('--amber', '#fbbf24');
-    g._rect.setAttribute('fill', color + '2e');
+    const stroke = stateCls === 'RUNNING' ? cssVar('--green', '#0d8f5f') : stateCls === 'SUSPENDED' ? cssVar('--ice', '#0a7fb5') : cssVar('--amber', '#b06d0f');
+    const fill = stateCls === 'RUNNING' ? '#eefaf4' : stateCls === 'SUSPENDED' ? '#f2f9fd' : '#fef9ed';
+    g._rect.setAttribute('fill', fill);
     g._rect.setAttribute('stroke', stroke);
     g._swatch.setAttribute('fill', color);
     g._name.textContent = name;
