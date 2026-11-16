@@ -336,3 +336,83 @@ svg #node-gemini text.title { font-size: 15px; }
 .panel.arch { background: transparent; box-shadow: none; }
 .status { align-items: center; }
 .status .ghost.small { padding: 4px 10px; font-size: 12px; }
+
+/* =====================================================================
+   Light theme (the only theme): overrides the base dark-era values above
+   ===================================================================== */
+:root {
+  /* Page + surfaces */
+  --bg: #f4f6fa; --bg2: #eef1f6; --panel: #ffffff; --panel2: #f5f7fa; --line: #e3e7ee;
+  /* Text */
+  --text: #1b1f2a; --muted: #5b6475;
+  /* Accents (Google-style, AA-legible on white) */
+  --blue: #1a73e8; --purple: #7b4fe0; --pink: #d6457e; --green: #0d8f5f; --amber: #b06d0f; --ice: #0a7fb5; --red: #d93025;
+  /* Brand gradient */
+  --grad: linear-gradient(90deg, #1a73e8 0%, #7b4fe0 50%, #d6457e 100%);
+  /* Elevation: cool, soft */
+  --shadow-1: 0 1px 2px rgba(30,41,59,.07), 0 2px 8px rgba(30,41,59,.06);
+  --shadow-2: 0 1px 3px rgba(30,41,59,.06), 0 12px 32px rgba(30,41,59,.08);
+  color-scheme: light;
+}
+.msg-model code { background: #eceff5; }
+.msg-model pre { background: #f3f5f9; color: var(--text); }
+.tool { background: #f7f8fb; }
+.tool-head { background: #eceff5; }
+.tool .cmd { color: #24345f; }
+.tool .out { color: #3b4456; background: rgba(0,0,0,.03); }
+.tool .stderr { color: #c0392b; }
+.badge { background: #e7eaf1; }
+.ghost { background: rgba(16,24,40,.05); }
+.ghost:hover:not(:disabled) { background: rgba(16,24,40,.09); }
+.ghost.danger.armed { color: var(--red); background: rgba(217,58,58,.14); }
+.turn-meta { background: rgba(16,24,40,.04); }
+#timeline .t { color: #8590a3; }
+#timeline .msg { color: #3b4456; }
+#timeline .tag.app { color: #a5680f; background: rgba(183,121,31,.1); }
+::-webkit-scrollbar-thumb { background: #c8ceda; }
+/* Live View */
+svg .node rect.box { fill: #ffffff; filter: drop-shadow(0 2px 6px rgba(16,24,40,.12)); }
+svg .pod rect.podbox { fill: #f2f4f8; filter: drop-shadow(0 1px 3px rgba(16,24,40,.08)); }
+svg .pool { fill: #e9f6f0; filter: drop-shadow(0 3px 10px rgba(16,24,40,.08)); }
+svg .snap { fill: #e8f4fa; filter: drop-shadow(0 3px 10px rgba(16,24,40,.08)); }
+svg .cluster { filter: drop-shadow(0 6px 18px rgba(16,24,40,.08)); }
+svg .edge { stroke: #c5ccd9; }
+svg .edge.hot { stroke: var(--purple); }
+svg .pool-label { fill: #23795a; }
+svg .snap-label { fill: #1a789f; }
+svg .cluster-tag-text { fill: #6a48cf; }
+svg .actor text.aname { fill: var(--text); }
+svg .actor text.adetail { fill: var(--muted); }
+svg .actor rect.chipbox { filter: drop-shadow(0 2px 5px rgba(16,24,40,.12)); }
+svg .yolo { filter: drop-shadow(0 2px 5px rgba(16,24,40,.18)); }
+svg #node-gemini rect.box {
+  fill: url(#gemini-fill-light);
+  filter: drop-shadow(0 0 12px rgba(47,111,228,.22)) drop-shadow(0 2px 6px rgba(16,24,40,.12));
+}
+svg #node-gemini.hot rect.box {
+  filter: drop-shadow(0 0 18px rgba(116,70,216,.4)) drop-shadow(0 2px 6px rgba(16,24,40,.12));
+}
+
+/* ---------- light palette polish ---------- */
+body { background: var(--bg); }
+.msg-user { background: #e8f0fe; color: #17305e; }
+.msg-model { background: var(--panel2); }
+.session-head { background: var(--panel2); }
+.scenario { background: var(--panel2); color: #2b3242; }
+.scenario:hover:not(:disabled) { background: #ece6fd; color: #4b2fa8; }
+.tab { color: var(--muted); }
+.tab.active { background: var(--panel2); color: var(--text); }
+.chip { background: var(--panel); }
+.badge.RUNNING { background: #e3f5ed; }
+.badge.SUSPENDED { background: #e1f1f9; }
+.badge.trans { background: #fbf0dc; }
+.tool-head .exit.ok { background: #e3f5ed; }
+.tool-head .exit.err { background: #fdecea; }
+textarea { background: var(--panel2); }
+textarea::placeholder { color: #8a93a5; }
+/* Live View surfaces */
+svg .pod rect.podbox, svg .pod.ready rect.podbox { fill: #ffffff; filter: drop-shadow(0 1px 3px rgba(30,41,59,.08)); }
+svg .pool { fill: #eef7f2; }
+svg .snap { fill: #eef5fb; }
+svg .edge { stroke: #c9d0dc; }
+svg .pod text.podname { fill: #7a8599; }

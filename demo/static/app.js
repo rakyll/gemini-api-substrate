@@ -9,8 +9,8 @@
 const SVGNS = 'http://www.w3.org/2000/svg';
 const STORAGE_KEY = 'substrate-demo-v1';
 const IDLE_TIMEOUT_S = 15; // matches controller --worker-idle-timeout=15s (sweeps every 7.5s)
-const COLORS = ['#4c8dff', '#e86fa6', '#f5a623', '#34d399', '#9b72f2', '#22d3ee', '#f87171', '#a3e635'];
-const C = { app: '#ffd479', gemini: '#4c8dff', ctrl: '#9b72f2', sub: '#34d399', actor: '#e86fa6', ice: '#67d4ff' };
+const COLORS = ['#1a73e8', '#d6457e', '#c76a00', '#0d8f5f', '#7b4fe0', '#0a7fb5', '#d93025', '#5f8c0a'];
+const C = { app: '#c76a00', gemini: '#1a73e8', ctrl: '#7b4fe0', sub: '#0d8f5f', actor: '#d6457e', ice: '#0a7fb5' };
 
 const EGRESS_LABEL = { default: 'egress: default-deny (Gemini API only)', dev: 'egress: PyPI + GitHub allowed' };
 
@@ -108,6 +108,9 @@ function svg(tag, attrs = {}, ...children) {
 
 const $ = (id) => document.getElementById(id);
 
+// Read a CSS custom property (theme colours live in style.css).
+const cssVar = (name, fallback) => getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
+
 // Minimal, safe markdown: ``` fences, `inline code`, **bold**, [text](url)->text.
 function renderMarkdown(text) {
   const frag = document.createDocumentFragment();
@@ -169,10 +172,10 @@ function buildArch() {
   const grad = (id, x2, y2, stops) => svg('linearGradient', { id, x1: 0, y1: 0, x2, y2 },
     ...stops.map(([offset, color, opacity]) => svg('stop', { offset, 'stop-color': color, 'stop-opacity': opacity })));
   root.append(svg('defs', {},
-    grad('cluster-stroke', 1, 1, [[0, '#4c8dff', 0.7], [0.5, '#9b72f2', 0.55], [1, '#e86fa6', 0.45]]),
-    grad('cluster-fill', 0, 1, [[0, '#4c8dff', 0.06], [1, '#9b72f2', 0.02]]),
-    grad('gemini-stroke', 1, 0, [[0, '#4c8dff', 1], [0.55, '#9b72f2', 1], [1, '#e86fa6', 1]]),
-    grad('gemini-fill', 1, 1, [[0, '#1f2a48', 1], [1, '#2a2340', 1]])));
+    grad('cluster-stroke', 1, 1, [[0, '#1a73e8', 0.55], [0.5, '#7b4fe0', 0.45], [1, '#d6457e', 0.4]]),
+    grad('cluster-fill', 0, 1, [[0, '#1a73e8', 0.05], [1, '#7b4fe0', 0.02]]),
+    grad('gemini-stroke', 1, 0, [[0, '#1a73e8', 1], [0.55, '#7b4fe0', 1], [1, '#d6457e', 1]]),
+    grad('gemini-fill-light', 1, 1, [[0, '#eaf1ff', 1], [1, '#f3ecff', 1]])));
   root.append(svg('rect', { class: 'cluster', x: 14, y: 128, width: 972, height: 626, rx: 12, fill: 'url(#cluster-fill)', stroke: 'url(#cluster-stroke)', 'stroke-width': 1.5 }));
   // Yolo the octopus (Agent Substrate mascot) badge sitting on the cluster edge.
   root.append(svg('rect', { class: 'cluster-tag', x: 66, y: 119, width: 124, height: 18, rx: 9 }));
@@ -205,19 +208,19 @@ function buildArch() {
   root.append(edges);
 
   const nodeDefs = [
-    ['app', 30, 24, 230, 68, 'logo:icons/application.svg', 'Application'],
+    ['app', 30, 24, 230, 68, null, 'Application'],
     ['gemini', 740, 24, 230, 68, 'logo:gemini-color.svg', 'Gemini API'],
     ['ctrl', 40, 166, 260, 70, 'logo:icons/controller.svg', 'gemini-substrate-controller'],
     ['api', 40, 290, 260, 62, 'logo:icons/api-server.svg', 'ate-api-server'],
     ['router', 345, 290, 180, 62, 'logo:icons/router.svg', 'atenet-router'],
   ];
   for (const [id, x, y, w, h, icon, title] of nodeDefs) {
-    const iconEl = icon.startsWith('logo:')
+    const iconEl = !icon ? null : icon.startsWith('logo:')
       ? svg('image', { href: icon.slice(5), x: x + 13, y: y + h / 2 - 11, width: 22, height: 22 })
       : svg('text', { class: 'icon', x: x + 14, y: y + h / 2 + 6, text: icon });
     const titleEl = svg('text', { class: 'title', x: x + 44, y: y + h / 2 + 5, text: title });
     const g = svg('g', { class: 'node', id: `node-${id}` },
-      svg('rect', { class: 'box', x, y, width: w, height: h, rx: 6 }), iconEl, titleEl);
+      svg('rect', { class: 'box', x, y, width: w, height: h, rx: 6 }), iconEl, titleEl);  // svg() skips a null icon
     Object.assign(g, { _icon: iconEl, _title: titleEl, _x: x, _w: w });
     A.nodes[id] = g;
     root.append(g);
@@ -232,10 +235,10 @@ function buildArch() {
   // Center the logo + title as a group inside the Application and Gemini API boxes.
   const centerNode = (id) => {
     const g = A.nodes[id];
-    const iconW = 22, gap = 9;
+    const iconW = g._icon ? 22 : 0, gap = g._icon ? 9 : 0;
     const total = iconW + gap + g._title.getComputedTextLength();
     const start = g._x + (g._w - total) / 2;
-    g._icon.setAttribute('x', start);
+    if (g._icon) g._icon.setAttribute('x', start);
     g._title.setAttribute('x', start + iconW + gap);
   };
   const centerAll = () => ['app', 'gemini'].forEach(centerNode);
@@ -313,7 +316,7 @@ function renderPods() {
 
 function actorLabel(a) {
   const s = sessionByEnv(a.envId);
-  return { name: `env ${shortId(a.envId)}`, color: s ? s.color : '#64748b', session: s };
+  return { name: `env ${shortId(a.envId)}`, color: s ? s.color : '#7a8599', session: s };
 }
 
 function idleRemaining(s) {
@@ -371,7 +374,7 @@ function renderActors() {
     }
     const stateCls = a.state === 'RUNNING' ? 'RUNNING' : a.state === 'SUSPENDED' ? 'SUSPENDED' : 'trans';
     g.setAttribute('class', `actor ${stateCls}${g.classList.contains('flash') ? ' flash' : ''}`);
-    const stroke = stateCls === 'RUNNING' ? '#34d399' : stateCls === 'SUSPENDED' ? '#67d4ff' : '#fbbf24';
+    const stroke = stateCls === 'RUNNING' ? cssVar('--green', '#34d399') : stateCls === 'SUSPENDED' ? cssVar('--ice', '#67d4ff') : cssVar('--amber', '#fbbf24');
     g._rect.setAttribute('fill', color + '2e');
     g._rect.setAttribute('stroke', stroke);
     g._swatch.setAttribute('fill', color);
