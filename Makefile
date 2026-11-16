@@ -1,4 +1,4 @@
-# Gemini Agents on Agent Substrate — demo helpers.
+# Gemini API Managed Agents on Agent Substrate — demo helpers.
 #
 #   make demo     build and start the demo UI on http://127.0.0.1:8765
 #   make status   show controller, WorkerPool pods and Substrate actors
