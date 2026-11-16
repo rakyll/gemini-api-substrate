@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#9b72f2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Controller: reconcile loop around a core -->
+  <path d="M19.5 12a7.5 7.5 0 0 1-12.8 5.3"/>
+  <path d="M4.5 12a7.5 7.5 0 0 1 12.8-5.3"/>
+  <path d="M17.6 3.2v3.6H14"/>
+  <path d="M6.4 20.8v-3.6H10"/>
+  <circle cx="12" cy="12" r="2.4" fill="#9b72f2" stroke="none"/>
+</svg>

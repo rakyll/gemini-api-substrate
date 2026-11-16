@@ -172,9 +172,11 @@ function buildArch() {
 
   const p = GEOM.pool, sh = GEOM.shelf;
   root.append(svg('rect', { class: 'pool', x: p.x, y: p.y, width: p.w, height: p.h, rx: 6 }));
-  root.append(svg('text', { class: 'pool-label', x: p.x + 14, y: p.y + 20, text: 'WORKERPOOL' }));
+  root.append(svg('image', { href: 'icons/workerpool.svg', x: p.x + 12, y: p.y + 8, width: 16, height: 16 }));
+  root.append(svg('text', { class: 'pool-label', x: p.x + 34, y: p.y + 20, text: 'WORKERPOOL' }));
   root.append(svg('rect', { class: 'snap', x: sh.x, y: sh.y, width: sh.w, height: sh.h, rx: 6 }));
-  root.append(svg('text', { class: 'snap-label', x: sh.x + 14, y: sh.y + 20, text: '❄ SNAPSHOTS' }));
+  root.append(svg('image', { href: 'icons/snapshots.svg', x: sh.x + 12, y: sh.y + 8, width: 16, height: 16 }));
+  root.append(svg('text', { class: 'snap-label', x: sh.x + 34, y: sh.y + 20, text: 'SNAPSHOTS' }));
 
   const edges = svg('g');
   const edgeDefs = [
@@ -194,11 +196,11 @@ function buildArch() {
   root.append(edges);
 
   const nodeDefs = [
-    ['app', 30, 24, 230, 68, '💻', 'Application'],
+    ['app', 30, 24, 230, 68, 'logo:icons/application.svg', 'Application'],
     ['gemini', 740, 24, 230, 68, 'logo:gemini-color.svg', 'Gemini API'],
-    ['ctrl', 40, 166, 260, 70, '🛰', 'gemini-substrate-controller'],
-    ['api', 40, 290, 260, 62, '⚙', 'ate-api-server'],
-    ['router', 345, 290, 180, 62, '🔀', 'atenet-router'],
+    ['ctrl', 40, 166, 260, 70, 'logo:icons/controller.svg', 'gemini-substrate-controller'],
+    ['api', 40, 290, 260, 62, 'logo:icons/api-server.svg', 'ate-api-server'],
+    ['router', 345, 290, 180, 62, 'logo:icons/router.svg', 'atenet-router'],
   ];
   for (const [id, x, y, w, h, icon, title] of nodeDefs) {
     const iconEl = icon.startsWith('logo:')
