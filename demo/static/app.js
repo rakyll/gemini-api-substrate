@@ -10,7 +10,7 @@ const SVGNS = 'http://www.w3.org/2000/svg';
 const STORAGE_KEY = 'substrate-demo-v1';
 const IDLE_TIMEOUT_S = 15; // matches controller --worker-idle-timeout=15s (sweeps every 7.5s)
 const COLORS = ['#1a73e8', '#d6457e', '#c76a00', '#0d8f5f', '#7b4fe0', '#0a7fb5', '#d93025', '#5f8c0a'];
-const C = { app: '#c76a00', gemini: '#1a73e8', ctrl: '#7b4fe0', sub: '#0d8f5f', actor: '#d6457e', ice: '#0a7fb5' };
+const C = { app: '#000000', gemini: '#1a73e8', ctrl: '#7b4fe0', sub: '#0d8f5f', actor: '#d6457e', ice: '#0a7fb5' };
 
 const EGRESS_LABEL = { default: 'egress: default-deny (Gemini API only)', dev: 'egress: PyPI + GitHub allowed' };
 

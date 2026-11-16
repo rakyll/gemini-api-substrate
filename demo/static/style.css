@@ -416,3 +416,6 @@ svg .pool { fill: #eef7f2; }
 svg .snap { fill: #eef5fb; }
 svg .edge { stroke: #c9d0dc; }
 svg .pod text.podname { fill: #7a8599; }
+
+/* Keep transcript items at their natural height; scroll instead of squashing. */
+.transcript > * { flex-shrink: 0; }
