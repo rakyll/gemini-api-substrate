@@ -18,6 +18,7 @@
     </div>
     <div class="status" id="status">
       <span class="chip" id="chip-context">cluster …</span>
+      <button class="ghost small danger" id="btn-delete-all" type="button" title="Delete every actor in the demo atespace">delete all actors</button>
       <span class="chip" id="chip-controller" hidden><i class="dot"></i>controller</span>
       <span class="chip" id="chip-pool" hidden><i class="dot"></i>pool</span>
       <span class="chip" id="chip-actors" hidden>actors</span>
@@ -76,13 +77,7 @@
     <!-- Right: architecture + timeline -->
     <section class="right">
       <div class="panel arch">
-        <div class="panel-title">
-          <h2>Live View</h2>
-          <div class="legend">
-            <button class="ghost small danger" id="btn-delete-all" type="button" title="Delete every actor in the demo atespace">🗑 Delete all actors</button>
-          </div>
-        </div>
-        <div id="arch" class="arch-canvas"></div>
+        <div id="arch" class="arch-canvas" aria-label="Live view"></div>
       </div>
       <div class="panel timeline collapsed" id="timeline-panel">
         <div class="panel-title tl-toggle" id="tl-toggle" role="button" tabindex="0" aria-expanded="false" aria-controls="timeline">

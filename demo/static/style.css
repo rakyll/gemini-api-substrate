@@ -317,6 +317,22 @@ svg .snap { fill: #142029; }
 svg .pool { fill: #13201c; }
 svg .pool, svg .snap { filter: drop-shadow(0 4px 14px rgba(0,0,0,.45)); }
 svg .actor text.adetail { fill: #9aa3b5; font: 10.5px var(--sans); }
-svg .cluster-tag { fill: var(--panel); }
+svg .cluster-tag { fill: var(--bg); }
 svg .cluster-tag-text { fill: #b9a6f5; font: 600 11.5px var(--sans); letter-spacing: .3px; }
 svg .yolo { filter: drop-shadow(0 3px 8px rgba(0,0,0,.5)); }
+
+/* ---------- Gemini API node: highlighted ---------- */
+svg #node-gemini rect.box {
+  fill: url(#gemini-fill); stroke: url(#gemini-stroke); stroke-width: 1.6;
+  filter: drop-shadow(0 0 12px rgba(76,141,255,.35)) drop-shadow(0 3px 6px rgba(0,0,0,.45));
+  transition: filter .3s;
+}
+svg #node-gemini.hot rect.box {
+  filter: drop-shadow(0 0 20px rgba(155,114,242,.65)) drop-shadow(0 3px 6px rgba(0,0,0,.45));
+}
+svg #node-gemini text.title { font-size: 15px; }
+
+/* Live View sits directly on the page: no outer panel box. */
+.panel.arch { background: transparent; box-shadow: none; }
+.status { align-items: center; }
+.status .ghost.small { padding: 4px 10px; font-size: 12px; }

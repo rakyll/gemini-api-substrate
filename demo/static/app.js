@@ -170,7 +170,9 @@ function buildArch() {
     ...stops.map(([offset, color, opacity]) => svg('stop', { offset, 'stop-color': color, 'stop-opacity': opacity })));
   root.append(svg('defs', {},
     grad('cluster-stroke', 1, 1, [[0, '#4c8dff', 0.7], [0.5, '#9b72f2', 0.55], [1, '#e86fa6', 0.45]]),
-    grad('cluster-fill', 0, 1, [[0, '#4c8dff', 0.06], [1, '#9b72f2', 0.02]])));
+    grad('cluster-fill', 0, 1, [[0, '#4c8dff', 0.06], [1, '#9b72f2', 0.02]]),
+    grad('gemini-stroke', 1, 0, [[0, '#4c8dff', 1], [0.55, '#9b72f2', 1], [1, '#e86fa6', 1]]),
+    grad('gemini-fill', 1, 1, [[0, '#1f2a48', 1], [1, '#2a2340', 1]])));
   root.append(svg('rect', { class: 'cluster', x: 14, y: 128, width: 972, height: 626, rx: 12, fill: 'url(#cluster-fill)', stroke: 'url(#cluster-stroke)', 'stroke-width': 1.5 }));
   // Yolo the octopus (Agent Substrate mascot) badge sitting on the cluster edge.
   root.append(svg('rect', { class: 'cluster-tag', x: 66, y: 119, width: 124, height: 18, rx: 9 }));
@@ -187,12 +189,12 @@ function buildArch() {
 
   const edges = svg('g');
   const edgeDefs = [
-    ['app-gemini', 'M260,58 L740,58', 'CreateInteraction  ⇄  SSE stream', 500, 50, 'middle'],
-    ['gemini-ctrl', 'M790,92 C 770,150 430,118 300,192', 'LeaseInteractions (API key)', 470, 140, 'middle'],
+    ['app-gemini', 'M260,58 L385,58', 'CreateInteraction  ⇄  SSE stream', 500, 50, 'middle'],
+    ['gemini-ctrl', 'M450,92 C 450,135 240,125 240,166', 'LeaseInteractions (API key)', 470, 140, 'middle'],
     ['ctrl-api', 'M170,236 L170,290', 'provision', 180, 268, 'start'],
     ['ctrl-router', 'M300,214 C 390,214 435,240 435,290', 'StartWork · mTLS', 395, 230, 'start'],
     ['router-pool', 'M525,321 L565,321', '', 0, 0, 'start'],
-    ['pool-gemini', 'M920,166 L920,92', 'bidi stream (lease token)', 912, 134, 'end'],
+    ['pool-gemini', 'M767,166 C 767,105 690,58 615,58', 'bidi stream (lease token)', 912, 134, 'end'],
     ['pool-snap', 'M565,563 L525,563', '', 0, 0, 'start'],
   ];
   for (const [id, d] of edgeDefs) {
@@ -204,7 +206,7 @@ function buildArch() {
 
   const nodeDefs = [
     ['app', 30, 24, 230, 68, 'logo:icons/application.svg', 'Application'],
-    ['gemini', 740, 24, 230, 68, 'logo:gemini-color.svg', 'Gemini API'],
+    ['gemini', 385, 24, 230, 68, 'logo:gemini-color.svg', 'Gemini API'],
     ['ctrl', 40, 166, 260, 70, 'logo:icons/controller.svg', 'gemini-substrate-controller'],
     ['api', 40, 290, 260, 62, 'logo:icons/api-server.svg', 'ate-api-server'],
     ['router', 345, 290, 180, 62, 'logo:icons/router.svg', 'atenet-router'],
@@ -832,9 +834,9 @@ async function deleteAllActors() {
   if (S.sessions.some((s) => s.busy)) { timeline('app', 'Delete all: wait for running turns to finish'); return; }
   if (!btn.classList.contains('armed')) {
     btn.classList.add('armed');
-    btn.textContent = `Click again to delete ${S.cluster.actors.length} actor(s)`;
+    btn.textContent = `click again to delete ${S.cluster.actors.length}`;
     clearTimeout(btn._t);
-    btn._t = setTimeout(() => { btn.classList.remove('armed'); btn.textContent = '🗑 Delete all actors'; }, 4000);
+    btn._t = setTimeout(() => { btn.classList.remove('armed'); btn.textContent = 'delete all actors'; }, 4000);
     return;
   }
   clearTimeout(btn._t);
@@ -856,7 +858,7 @@ async function deleteAllActors() {
     timeline('app', `Delete all failed (${err.message})`);
   } finally {
     btn.disabled = false;
-    btn.textContent = '🗑 Delete all actors';
+    btn.textContent = 'delete all actors';
   }
 }
 
