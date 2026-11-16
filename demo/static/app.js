@@ -189,12 +189,12 @@ function buildArch() {
 
   const edges = svg('g');
   const edgeDefs = [
-    ['app-gemini', 'M260,58 L385,58', 'CreateInteraction  ⇄  SSE stream', 500, 50, 'middle'],
-    ['gemini-ctrl', 'M450,92 C 450,135 240,125 240,166', 'LeaseInteractions (API key)', 470, 140, 'middle'],
+    ['app-gemini', 'M260,58 L740,58', 'CreateInteraction  ⇄  SSE stream', 500, 50, 'middle'],
+    ['gemini-ctrl', 'M790,92 C 770,150 430,118 300,192', 'LeaseInteractions (API key)', 470, 140, 'middle'],
     ['ctrl-api', 'M170,236 L170,290', 'provision', 180, 268, 'start'],
     ['ctrl-router', 'M300,214 C 390,214 435,240 435,290', 'StartWork · mTLS', 395, 230, 'start'],
     ['router-pool', 'M525,321 L565,321', '', 0, 0, 'start'],
-    ['pool-gemini', 'M767,166 C 767,105 690,58 615,58', 'bidi stream (lease token)', 912, 134, 'end'],
+    ['pool-gemini', 'M920,166 L920,92', 'bidi stream (lease token)', 912, 134, 'end'],
     ['pool-snap', 'M565,563 L525,563', '', 0, 0, 'start'],
   ];
   for (const [id, d] of edgeDefs) {
@@ -206,7 +206,7 @@ function buildArch() {
 
   const nodeDefs = [
     ['app', 30, 24, 230, 68, 'logo:icons/application.svg', 'Application'],
-    ['gemini', 385, 24, 230, 68, 'logo:gemini-color.svg', 'Gemini API'],
+    ['gemini', 740, 24, 230, 68, 'logo:gemini-color.svg', 'Gemini API'],
     ['ctrl', 40, 166, 260, 70, 'logo:icons/controller.svg', 'gemini-substrate-controller'],
     ['api', 40, 290, 260, 62, 'logo:icons/api-server.svg', 'ate-api-server'],
     ['router', 345, 290, 180, 62, 'logo:icons/router.svg', 'atenet-router'],
@@ -215,10 +215,10 @@ function buildArch() {
     const iconEl = icon.startsWith('logo:')
       ? svg('image', { href: icon.slice(5), x: x + 13, y: y + h / 2 - 11, width: 22, height: 22 })
       : svg('text', { class: 'icon', x: x + 14, y: y + h / 2 + 6, text: icon });
+    const titleEl = svg('text', { class: 'title', x: x + 44, y: y + h / 2 + 5, text: title });
     const g = svg('g', { class: 'node', id: `node-${id}` },
-      svg('rect', { class: 'box', x, y, width: w, height: h, rx: 6 }),
-      iconEl,
-      svg('text', { class: 'title', x: x + 44, y: y + h / 2 + 5, text: title }));
+      svg('rect', { class: 'box', x, y, width: w, height: h, rx: 6 }), iconEl, titleEl);
+    Object.assign(g, { _icon: iconEl, _title: titleEl, _x: x, _w: w });
     A.nodes[id] = g;
     root.append(g);
   }
@@ -228,6 +228,19 @@ function buildArch() {
   A.layers.packets = svg('g');
   root.append(A.layers.pods, A.layers.actors, A.layers.packets);
   $('arch').append(root);
+
+  // Center the logo + title as a group inside the Application and Gemini API boxes.
+  const centerNode = (id) => {
+    const g = A.nodes[id];
+    const iconW = 22, gap = 9;
+    const total = iconW + gap + g._title.getComputedTextLength();
+    const start = g._x + (g._w - total) / 2;
+    g._icon.setAttribute('x', start);
+    g._title.setAttribute('x', start + iconW + gap);
+  };
+  const centerAll = () => ['app', 'gemini'].forEach(centerNode);
+  centerAll();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(centerAll);
 }
 
 function hot(nodeId, ms = 900) {
