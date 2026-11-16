@@ -83,6 +83,7 @@ make open        # opens it in the browser
 | `make status` | Show the controller, WorkerPool pods and actors |
 | `make logs` | Follow the controller logs |
 | `make reset` | Delete all demo actors (asks first) |
+| `make fix-router` | Restart `atenet-router` if it has no ready endpoints (fixes `StartWork … connection refused`; `FORCE=1` always restarts) |
 | `make build` / `make clean` | Build or remove the demo binary |
 
 Override `CTX`, `NAMESPACE`, `ATESPACE` or `ADDR` if needed, e.g.
@@ -187,7 +188,7 @@ demo/              Demo server (Go, stdlib only) and web UI
   run.sh, reset.sh Helpers used by the Makefile
 deploy/
   actor-template.yaml   gemini-env-actor ActorTemplate (no secrets)
-Makefile           make demo / status / logs / reset
+Makefile           make demo / status / logs / reset / fix-router
 ```
 
 ## Credits
