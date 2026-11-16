@@ -8,7 +8,7 @@
 
 const SVGNS = 'http://www.w3.org/2000/svg';
 const STORAGE_KEY = 'substrate-demo-v1';
-const IDLE_TIMEOUT_S = 30; // matches controller --worker-idle-timeout=30s (sweeps every 10s)
+const IDLE_TIMEOUT_S = 15; // matches controller --worker-idle-timeout=15s (sweeps every 7.5s)
 const COLORS = ['#4c8dff', '#e86fa6', '#f5a623', '#34d399', '#9b72f2', '#22d3ee', '#f87171', '#a3e635'];
 const C = { app: '#ffd479', gemini: '#4c8dff', ctrl: '#9b72f2', sub: '#34d399', actor: '#e86fa6', ice: '#67d4ff' };
 
@@ -76,6 +76,7 @@ const active = () => S.sessions.find((s) => s.id === S.activeId);
 const sessionByEnv = (envId) => envId && S.sessions.find((s) => s.envId === envId);
 const actorForSession = (s) => s && s.envId && S.cluster.actors.find((a) => a.envId === s.envId);
 const shortId = (id) => (id || '').slice(0, 8);
+const envLabel = (s) => (s && s.envId ? `env ${shortId(s.envId)}` : 'new environment');
 const podShort = (name) => (name || '').split('-').slice(-1)[0];
 const isTrans = (st) => st && st !== 'RUNNING' && st !== 'SUSPENDED';
 
@@ -166,7 +167,7 @@ function buildArch() {
   root.append(svg('rect', { class: 'pool', x: p.x, y: p.y, width: p.w, height: p.h, rx: 12 }));
   root.append(svg('text', { class: 'pool-label', x: p.x + 14, y: p.y + 20, text: 'WORKERPOOL' }));
   root.append(svg('rect', { class: 'snap', x: sh.x, y: sh.y, width: sh.w, height: sh.h, rx: 12 }));
-  root.append(svg('text', { class: 'snap-label', x: sh.x + 14, y: sh.y + 20, text: '❄ SNAPSHOTS · suspended actors (memory + /workspace)' }));
+  root.append(svg('text', { class: 'snap-label', x: sh.x + 14, y: sh.y + 20, text: '❄ SNAPSHOTS' }));
 
   const edges = svg('g');
   const edgeDefs = [
@@ -187,7 +188,7 @@ function buildArch() {
   root.append(edges);
 
   const nodeDefs = [
-    ['app', 30, 24, 230, 68, '💻', 'Demo app (BFF)', 'holds API key · runs nothing'],
+    ['app', 30, 24, 230, 68, '💻', 'Application', 'holds API key · runs nothing'],
     ['gemini', 740, 24, 230, 68, '✦', 'Gemini API', 'Interactions · Antigravity agent'],
     ['ctrl', 40, 166, 260, 70, '🛰', 'gemini-substrate-controller', 'environments poll · idle sweeper'],
     ['api', 40, 290, 260, 62, '⚙', 'ate-api-server', 'Create · Resume · Suspend actor'],
@@ -275,14 +276,14 @@ function renderPods() {
     s.warmEl = svg('text', { class: 'warm', x: s.x + s.w / 2, y: s.y + s.h - 14, 'text-anchor': 'middle', text: s.pod.ready ? 'warm · waiting for an actor' : 'starting…' });
     layer.append(svg('g', { class: `pod ${s.pod.ready ? 'ready' : ''}` },
       svg('rect', { class: 'podbox', x: s.x, y: s.y, width: s.w, height: s.h, rx: 10 }),
-      svg('text', { class: 'podname', x: s.x + 10, y: s.y + 17, text: `pod …${podShort(name)}  ${s.pod.ip || ''}` }),
+      svg('text', { class: 'podname', x: s.x + 10, y: s.y + 17, text: name }),
       s.warmEl));
   }
 }
 
 function actorLabel(a) {
   const s = sessionByEnv(a.envId);
-  return { name: s ? s.name : `env ${shortId(a.envId)}`, color: s ? s.color : '#64748b', session: s };
+  return { name: `env ${shortId(a.envId)}`, color: s ? s.color : '#64748b', session: s };
 }
 
 function idleRemaining(s) {
@@ -424,7 +425,7 @@ function setChip(id, ok, label, value) {
 
 function onController(ev) {
   const s = sessionByEnv(ev.envId);
-  const who = s ? s.name : ev.envId ? `env ${shortId(ev.envId)}` : '';
+  const who = ev.envId ? `env ${shortId(ev.envId)}` : (s ? envLabel(s) : '');
   switch (ev.kind) {
     case 'lease':
       timeline('controller', `LeaseInteractions → claimed lease for ${who}`);
@@ -469,7 +470,7 @@ function renderTabs() {
     const st = a ? (isTrans(a.state) ? 'trans' : a.state) : '';
     return el('button', { class: `tab ${s.id === S.activeId ? 'active' : ''}`, type: 'button', on: { click: () => switchTo(s.id) } },
       el('span', { class: 'swatch', style: { background: s.color } }),
-      s.name,
+      envLabel(s),
       el('span', { class: `state-dot ${st}`, title: a ? a.state : 'no actor' }),
       el('span', { class: 'close', title: 'Close tab (actor is kept)', text: '×', on: { click: (e) => { e.stopPropagation(); closeSession(s.id); } } }));
   });
@@ -483,11 +484,11 @@ function renderSessionHead() {
   if (!s) return;
   const a = actorForSession(s);
   $('sess-swatch').style.background = s.color;
-  $('sess-name').textContent = s.name;
+  $('sess-name').textContent = s.envId ? `env ${s.envId}` : 'new environment';
   const badge = $('sess-state');
   badge.className = 'badge ' + (a ? (isTrans(a.state) ? 'trans' : a.state) : '');
   badge.textContent = a ? a.state : s.envId ? 'actor pending' : 'not created yet';
-  $('sess-egress').textContent = (EGRESS_LABEL[s.egress] || '') + (s.envId ? ` · env ${shortId(s.envId)}` : '');
+  $('sess-egress').textContent = EGRESS_LABEL[s.egress] || '';
   const r = a && a.state === 'RUNNING' ? idleRemaining(s) : null;
   $('sess-idle').textContent = s.busy ? 'turn in progress…' : r !== null ? (r > 0 ? `idle · auto-suspend in ~${r}s` : 'auto-suspend imminent') : '';
   $('btn-suspend').disabled = !(a && a.state === 'RUNNING' && !s.busy);
@@ -638,7 +639,7 @@ async function runTurn(s, prompt) {
   pushItem(s, { type: 'user', text: prompt });
   setThinking(s, s.envId ? 'Waiting for the controller to lease this turn…' : 'Creating self_hosted environment…');
   renderSessionHead();
-  timeline('app', `${s.name}: POST /v1beta/interactions ${s.envId ? '(env ' + shortId(s.envId) + ')' : '(new self_hosted env, ' + s.egress + ' egress)'}`);
+  timeline('app', `${envLabel(s)}: POST /v1beta/interactions${s.envId ? '' : ' (new self_hosted env, ' + s.egress + ' egress)'}`);
   pulse('app-gemini', { color: C.app, label: 'prompt', dur: 900 });
   hot('app'); setTimeout(() => hot('gemini'), 700);
 
@@ -692,9 +693,9 @@ function handleStreamEvent(s, event, d) {
       s.interactionId = it.id || '';
       if (it.environment_id && !s.envId) {
         s.envId = it.environment_id;
-        timeline('gemini', `${s.name}: created self_hosted environment ${shortId(s.envId)} · waiting for a self-hosted worker`);
+        timeline('gemini', `${envLabel(s)}: self_hosted environment created · waiting for a self-hosted worker`);
       } else {
-        timeline('gemini', `${s.name}: interaction created · queued for lease`);
+        timeline('gemini', `${envLabel(s)}: interaction created · queued for lease`);
       }
       save();
       renderSessionHead();
@@ -709,7 +710,7 @@ function handleStreamEvent(s, event, d) {
         setThinking(s, 'Tool running inside the sandbox…');
         pulse('pool-gemini', { color: C.actor, label: step.name, reverse: true, dur: 800 });
         flashActor(s);
-        timeline('actor', `${s.name}: Gemini → actor · ${step.name}`);
+        timeline('actor', `${envLabel(s)}: Gemini → actor · ${step.name}`);
       } else if (step.type === 'function_result') {
         const item = s.items.find((x) => x.type === 'tool' && x.callId === step.call_id);
         const target = item || pushItem(s, { type: 'tool', callId: step.call_id, name: step.name });
@@ -721,7 +722,7 @@ function handleStreamEvent(s, event, d) {
         pulse('pool-gemini', { color: C.sub, label: 'result', dur: 800 });
         flashActor(s);
         const ec = target.result && target.result.exit_code;
-        timeline('actor', `${s.name}: actor → Gemini · ${step.name} result${ec !== undefined ? ' (exit ' + ec + ')' : ''}`);
+        timeline('actor', `${envLabel(s)}: actor → Gemini · ${step.name} result${ec !== undefined ? ' (exit ' + ec + ')' : ''}`);
       } else if (step.type === 'model_output') {
         s.steps[d.index] = pushItem(s, { type: 'text', text: '' });
         setThinking(s, null);
@@ -759,7 +760,7 @@ function handleStreamEvent(s, event, d) {
       const tok = it.usage && it.usage.total_tokens;
       const tools = Object.values(s.steps).filter((x) => x.type === 'tool').length;
       pushItem(s, { type: 'meta', text: `✓ ${it.status || 'completed'} in ${secs}s · ${tools} tool call${tools === 1 ? '' : 's'} in sandbox${tok ? ' · ' + tok.toLocaleString() + ' tokens' : ''}` });
-      timeline('gemini', `${s.name}: interaction ${it.status || 'completed'} in ${secs}s`);
+      timeline('gemini', `${envLabel(s)}: interaction ${it.status || 'completed'} in ${secs}s`);
       pulse('app-gemini', { color: C.gemini, reverse: true, label: 'done', dur: 800 });
       break;
     }
@@ -767,7 +768,7 @@ function handleStreamEvent(s, event, d) {
     case 'error': {
       const msg = d.message || (d.error && d.error.message) || 'interaction failed';
       pushItem(s, { type: 'error', text: msg });
-      timeline('gemini', `${s.name}: ${msg}`);
+      timeline('gemini', `${envLabel(s)}: ${msg}`);
       break;
     }
     default:
@@ -799,7 +800,7 @@ async function suspendActive() {
   const a = actorForSession(s);
   if (!a) return;
   $('btn-suspend').disabled = true;
-  timeline('app', `${s.name}: kubectl ate suspend actor ${a.name.slice(0, 22)}…`);
+  timeline('app', `${envLabel(s)}: kubectl ate suspend actor ${a.name.slice(0, 22)}…`);
   pulse('ctrl-api', { color: C.ice, label: 'Suspend', dur: 700 });
   try {
     const res = await fetch('/api/suspend', {
@@ -807,9 +808,42 @@ async function suspendActive() {
       headers: { 'Content-Type': 'application/json', 'X-Demo-Request': '1' },
       body: JSON.stringify({ actor: a.name }),
     });
-    if (!res.ok) timeline('app', `${s.name}: suspend failed (HTTP ${res.status})`);
+    if (!res.ok) timeline('app', `${envLabel(s)}: suspend failed (HTTP ${res.status})`);
   } catch (_) {
-    timeline('app', `${s.name}: suspend request failed`);
+    timeline('app', `${envLabel(s)}: suspend request failed`);
+  }
+}
+
+async function deleteAllActors() {
+  const btn = $('btn-delete-all');
+  if (S.sessions.some((s) => s.busy)) { timeline('app', 'Delete all: wait for running turns to finish'); return; }
+  if (!btn.classList.contains('armed')) {
+    btn.classList.add('armed');
+    btn.textContent = `Click again to delete ${S.cluster.actors.length} actor(s)`;
+    clearTimeout(btn._t);
+    btn._t = setTimeout(() => { btn.classList.remove('armed'); btn.textContent = '🗑 Delete all actors'; }, 4000);
+    return;
+  }
+  clearTimeout(btn._t);
+  btn.classList.remove('armed');
+  btn.disabled = true;
+  btn.textContent = 'Deleting…';
+  timeline('app', `Deleting all actors in atespace ${S.config.atespace || ''}…`);
+  pulse('ctrl-api', { color: C.actor, label: 'DeleteActor', dur: 700 });
+  try {
+    const res = await fetch('/api/actors/delete-all', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Demo-Request': '1' },
+      body: '{}',
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const r = await res.json();
+    timeline('substrate', `Deleted ${r.deleted} actor(s)${r.failed ? `, ${r.failed} failed` : ''}`);
+  } catch (err) {
+    timeline('app', `Delete all failed (${err.message})`);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🗑 Delete all actors';
   }
 }
 
@@ -840,9 +874,10 @@ function init() {
     const egress = (document.querySelector('input[name="egress"]:checked') || {}).value || 'default';
     const s = newSession(egress);
     switchTo(s.id);
-    timeline('app', `${s.name} ready (${EGRESS_LABEL[egress]}) — actor is created on the first turn`);
+    timeline('app', `${envLabel(s)} ready (${EGRESS_LABEL[egress]}) — actor is created on the first turn`);
   });
   $('btn-suspend').addEventListener('click', suspendActive);
+  $('btn-delete-all').addEventListener('click', deleteAllActors);
   $('btn-clear-tl').addEventListener('click', () => $('timeline').replaceChildren());
   $('btn-reset-ui').addEventListener('click', () => {
     if (S.sessions.some((s) => s.busy)) return;

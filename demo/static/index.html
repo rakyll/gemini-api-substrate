@@ -22,7 +22,7 @@
       <span class="chip" id="chip-pool"><i class="dot"></i>pool</span>
       <span class="chip" id="chip-actors">actors</span>
       <span class="chip live" id="chip-live"><i class="dot"></i>live</span>
-      <button class="ghost small" id="btn-reset-ui" type="button" title="Forget local sessions (does not delete actors)">reset UI</button>
+      <button class="ghost small" id="btn-reset-ui" type="button" title="Forget local sessions (does not delete actors)">reset</button>
     </div>
   </header>
 
@@ -36,13 +36,13 @@
       <div class="session-head" id="session-head">
         <div class="session-meta">
           <span class="swatch" id="sess-swatch"></span>
-          <span class="sess-name" id="sess-name">Sandbox</span>
+          <span class="sess-name" id="sess-name">new environment</span>
           <span class="badge" id="sess-state">not created</span>
           <span class="egress" id="sess-egress"></span>
         </div>
         <div class="session-actions">
           <span class="idle" id="sess-idle"></span>
-          <button class="ghost" id="btn-suspend" type="button" disabled>❄ Suspend now</button>
+          <button class="ghost" id="btn-suspend" type="button" disabled>❄ Suspend</button>
         </div>
       </div>
 
@@ -68,7 +68,7 @@
         <div class="scenarios" id="scenarios"></div>
         <form id="composer-form" class="composer-row">
           <textarea id="prompt" rows="2" maxlength="8000" placeholder="Ask the agent to do something in its sandbox…"></textarea>
-          <button class="primary run" id="btn-run" type="submit">Run ▶</button>
+          <button class="primary run" id="btn-run" type="submit">Send ▶</button>
         </form>
       </div>
     </section>
@@ -82,6 +82,7 @@
             <span><i class="lg lg-run"></i>running</span>
             <span><i class="lg lg-susp"></i>suspended (snapshot)</span>
             <span><i class="lg lg-trans"></i>transitioning</span>
+            <button class="ghost small danger" id="btn-delete-all" type="button" title="Delete every actor in the demo atespace">🗑 Delete all actors</button>
           </div>
         </div>
         <div id="arch" class="arch-canvas"></div>

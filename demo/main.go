@@ -117,6 +117,7 @@ func main() {
 	mux.HandleFunc("GET /api/events", h.serveSSE)
 	mux.HandleFunc("POST /api/run", s.handleRun)
 	mux.HandleFunc("POST /api/suspend", s.handleSuspend)
+	mux.HandleFunc("POST /api/actors/delete-all", s.handleDeleteAll)
 
 	srv := &http.Server{
 		Addr:              cfg.Addr,
@@ -635,6 +636,43 @@ func (s *server) handleSuspend(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, map[string]bool{"ok": true})
+}
+
+// handleDeleteAll deletes every actor in the demo atespace (never others).
+func (s *server) handleDeleteAll(w http.ResponseWriter, r *http.Request) {
+	out, err := kubectl(r.Context(), s.cfg, "ate", "get", "actors", "-a", s.cfg.Atespace, "-o", "json")
+	if err != nil {
+		log.Printf("delete-all: list: %v", err)
+		http.Error(w, "listing actors failed", http.StatusBadGateway)
+		return
+	}
+	var resp struct {
+		Actors []struct {
+			Metadata struct {
+				Name string `json:"name"`
+			} `json:"metadata"`
+		} `json:"actors"`
+	}
+	if err := json.Unmarshal(out, &resp); err != nil {
+		http.Error(w, "listing actors failed", http.StatusBadGateway)
+		return
+	}
+	deleted, failed := 0, 0
+	for _, a := range resp.Actors {
+		name := a.Metadata.Name
+		if !actorNameRe.MatchString(name) {
+			failed++
+			continue
+		}
+		if _, err := kubectl(r.Context(), s.cfg, "ate", "delete", "actor", name, "-a", s.cfg.Atespace); err != nil {
+			log.Printf("delete-all: %s: %v", name, err)
+			failed++
+			continue
+		}
+		deleted++
+	}
+	log.Printf("delete-all: atespace=%s deleted=%d failed=%d", s.cfg.Atespace, deleted, failed)
+	writeJSON(w, map[string]int{"deleted": deleted, "failed": failed})
 }
 
 func writeJSON(w http.ResponseWriter, v any) {
