@@ -10,7 +10,7 @@
 <body>
   <header class="topbar">
     <div class="brand">
-      <div class="logo" aria-hidden="true"></div>
+      <img class="logo" src="gemini.svg" alt="Gemini" width="36" height="36">
       <div>
         <h1><span class="grad">Gemini Agents</span> on Agent Substrate</h1>
         <p class="subtitle">Self-hosted environments · every tool call runs in <b>your</b> Agent Substrate cluster</p>
@@ -30,7 +30,7 @@
     <!-- Left: sessions + transcript -->
     <section class="panel sessions">
       <div class="tabs" id="tabs">
-        <button class="tab add" id="btn-new" type="button" title="New sandbox">＋ New sandbox</button>
+        <button class="tab add" id="btn-new" type="button" title="New environment">＋ New Environment</button>
       </div>
 
       <div class="session-head" id="session-head">
@@ -47,7 +47,7 @@
       </div>
 
       <div class="new-sandbox" id="new-sandbox" hidden>
-        <h3>Create a sandbox</h3>
+        <h3>Create an environment</h3>
         <p>A new Gemini <code>self_hosted</code> environment becomes a fresh Substrate actor on first use.</p>
         <fieldset>
           <legend>Egress policy (immutable once created)</legend>
@@ -57,7 +57,7 @@
             <span><b>Developer</b><small>+ PyPI and GitHub via TLS passthrough</small></span></label>
         </fieldset>
         <div class="row">
-          <button class="primary" id="btn-create" type="button">Create sandbox</button>
+          <button class="primary" id="btn-create" type="button">Create environment</button>
           <button class="ghost" id="btn-cancel-new" type="button">Cancel</button>
         </div>
       </div>

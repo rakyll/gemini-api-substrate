@@ -21,7 +21,6 @@ const SCENARIOS = [
   { label: '🌐 Test egress', prompt: 'Using curl with a 5 second timeout, request https://example.com and https://pypi.org/simple/ and report only the HTTP status code or error for each, as a small table.' },
   { label: '📦 Clone from GitHub', prompt: "In bash: `git clone --depth 1 https://github.com/google-gemini/gemini-api-cli /workspace/gemini-api-cli` and count its .go files; get the latest `requests` version from https://pypi.org/pypi/requests/json; and try `curl -s -m 5 -o /dev/null -w '%{http_code}' https://example.com`. Summarize what was allowed vs blocked." },
 ];
-const FANOUT_PROMPT = 'In bash, run `python3 -c "import uuid,hashlib,time;u=str(uuid.uuid4());print(u);print(hashlib.sha256(u.encode()).hexdigest());print(time.time_ns())"` and report the three values in one line.';
 
 // ---------------------------------------------------------------------------
 // State
@@ -493,7 +492,7 @@ function renderSessionHead() {
   $('sess-idle').textContent = s.busy ? 'turn in progress…' : r !== null ? (r > 0 ? `idle · auto-suspend in ~${r}s` : 'auto-suspend imminent') : '';
   $('btn-suspend').disabled = !(a && a.state === 'RUNNING' && !s.busy);
   $('btn-run').disabled = s.busy;
-  for (const b of document.querySelectorAll('.scenario')) b.disabled = s.busy && !b.classList.contains('fan');
+  for (const b of document.querySelectorAll('.scenario')) b.disabled = s.busy;
 }
 
 function switchTo(id) {
@@ -787,14 +786,6 @@ function submitPrompt(text) {
   runTurn(s, prompt);
 }
 
-function fanOut(n = 3) {
-  const created = [];
-  for (let i = 0; i < n; i++) created.push(newSession('default'));
-  timeline('app', `Fan-out: ${n} new sandboxes in parallel — one Substrate actor each`);
-  switchTo(created[0].id);
-  created.forEach((s, i) => setTimeout(() => runTurn(s, FANOUT_PROMPT), i * 150));
-}
-
 async function suspendActive() {
   const s = active();
   const a = actorForSession(s);
@@ -855,7 +846,6 @@ function init() {
 
   const sc = $('scenarios');
   for (const x of SCENARIOS) sc.append(el('button', { class: 'scenario', type: 'button', text: x.label, title: x.prompt, on: { click: () => submitPrompt(x.prompt) } }));
-  sc.append(el('button', { class: 'scenario fan', type: 'button', text: '🚀 Fan out ×3', title: 'Run 3 new sandboxes in parallel', on: { click: () => fanOut(3) } }));
 
   $('composer-form').addEventListener('submit', (e) => {
     e.preventDefault();
